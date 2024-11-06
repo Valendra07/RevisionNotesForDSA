@@ -1,0 +1,135 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+// This approach is not working
+
+// This is a greedy approach but it is not working.
+// class Solution {
+// public:
+//     int jump(vector<int>& nums) {
+//         int i = 0;
+//         int n = nums.size(), cnt = 0;
+//         if(n == 1)return cnt;
+//         while(i<n)
+//         {
+//             if(nums[i] + i >= n-1)return ++cnt;
+//             int maxi = INT_MIN;
+//             int idx = i;
+//             for(int j=i+1;j<=nums[i]+i && j<n;j++)
+//             {
+//                 if(nums[j] - (n-1-i) >= 0)return ++cnt;
+//                 if(nums[j] - (n-1-i) >= maxi)
+//                 {
+//                     maxi = nums[j];
+//                     idx = j;
+//                 }
+//             }
+//             i=idx;
+//             cnt++;
+//         }
+
+//         return cnt;
+//     }
+// };
+
+// Great Test Case [10,9,8,7,6,5,4,3,2,1,1,0]
+
+
+// Recursive Solution 
+
+// Gives TLE Badly written code
+class Solution {
+public:
+    void f(int i, int steps, vector<int> &nums, int &minCnt)
+    {
+         if(i == nums.size()-1) minCnt = min(minCnt, steps);
+         for(int j=i+1;j<= nums[i]+i && j<nums.size();j++)
+         f(j, steps+1, nums, minCnt);
+    }
+    int jump(vector<int>& nums) {
+        int minCnt = INT_MAX;
+        f(0, 0, nums, minCnt);
+        return minCnt;
+    }
+};
+
+// Better Code But still gives TLE
+
+class Solution
+{
+public:
+    int f(int i, int steps, vector<int> &nums)
+    {
+        int n = nums.size();
+        if (i == n - 1)
+            return steps;
+        int minSteps = INT_MAX;
+
+        int jMax = min(nums[i] + i, n - 1);
+        for (int j = i + 1; j <= jMax; j++)
+        {
+            minSteps = min(minSteps, f(j, steps + 1, nums));
+        }
+        return minSteps;
+    }
+    int jump(vector<int> &nums)
+    {
+        return f(0, 0, nums);
+    }
+};
+
+
+// Even the dp solution giving TLE!!!!!
+
+class Solution
+{
+public:
+    int f(int i, int steps, vector<int> &nums, vector<vector<int>> &dp)
+    {
+        int n = nums.size();
+        if (i == n - 1)
+            return steps;
+        if (dp[i][steps] != -1)
+            return dp[i][steps];
+        int minSteps = INT_MAX;
+
+        int jMax = min(nums[i] + i, n - 1);
+        for (int j = i + 1; j <= jMax; j++)
+        {
+            minSteps = min(minSteps, f(j, steps + 1, nums, dp));
+        }
+        return dp[i][steps] = minSteps;
+    }
+    int jump(vector<int> &nums)
+    {
+        int n = nums.size();
+        vector<vector<int>> dp(n + 1, vector<int>(1001, -1));
+        return f(0, 0, nums, dp);
+    }
+};
+
+// And finally 
+// By jumping using l and r I got the answer.
+// TC -> O(n)
+// SC -> O(1)
+class Solution {
+public:
+    int jump(vector<int>& nums) {
+        int n = nums.size();
+
+        int l=0,r=0,cnt=0;
+        while(r<n-1)
+        {  
+            int maxi = INT_MIN;
+            for(int i=l;i<=r;i++)
+            {
+               maxi = max(maxi, i+nums[i]);
+            }
+            l = r+1;
+            r = maxi;
+            cnt++;
+        }
+
+        return cnt;
+    }
+};
